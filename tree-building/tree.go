@@ -22,10 +22,6 @@ func Build(records []Record) (*Node, error) {
 	sort.Slice(records, func(i, j int) bool {
 		r1 := records[i]
 		r2 := records[j]
-		// if r1.Parent == r2.Parent {
-		// 	return r1.ID < r2.ID
-		// }
-		// return r1.Parent < r2.Parent
 		return r1.ID < r2.ID
 	})
 	nodes := make([]*Node, len(records))
