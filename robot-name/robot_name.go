@@ -1,59 +1,47 @@
 package robotname
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"time"
 )
 
-// Robot has a name
+const maxNamesAvailable = 26 * 26 * 1000
+
+var namesInUse = make(map[string]bool)
+
+// Robot with a name
 type Robot struct {
 	name string
 }
 
-// Total number of combinations for letter is 26^2 = 676
-// Total number of combinations for digits is 10^3 = 1000
-// combinations formula is n^m
-const maxCombinations = 26 * 26 * 10 * 10 * 10
-
-// Seen - global var to remember used names
-var Seen = map[string]struct{}{"": struct{}{}}
-
-// Name generates unique robot's name
+// Name returns the name of the Robot
 func (r *Robot) Name() (string, error) {
-	if r.name != "" {
-		return r.name, nil
-	}
-	if len(Seen) >= maxCombinations {
-		return "", errors.New("names limit reached")
-	}
-	for {
-		if _, ok := Seen[r.name]; ok {
-			r.name = generateName()
-		} else {
-			Seen[r.name] = struct{}{}
-			break
+	if r.name == "" {
+		e := r.Reset()
+		if e != nil {
+			return "", e
 		}
 	}
-
 	return r.name, nil
 }
 
-func generateName() string {
+// Reset the robot to factory settings
+func (r *Robot) Reset() error {
 	rand.Seed(time.Now().UTC().UnixNano())
-	return fmt.Sprintf("%s%s%d%d%d", randomLetter(), randomLetter(), randomDigit(), randomDigit(), randomDigit())
-}
+	if len(namesInUse) >= maxNamesAvailable {
+		return fmt.Errorf("Could not get new name for robot, all available names was in use")
+	}
 
-// Reset - resets robot's name
-func (r *Robot) Reset() {
-	r.name = ""
-}
+	var name string
+	for namesInUse[name] || name == "" {
+		a := string(rand.Intn(26) + 'A')
+		b := string(rand.Intn(26) + 'A')
+		num := rand.Intn(1000)
 
-func randomLetter() string {
-	return string('A' + rand.Intn(26))
-}
-
-func randomDigit() int {
-	return rand.Intn(10)
+		name = fmt.Sprintf("%s%s%03d", a, b, num)
+	}
+	namesInUse[name] = true
+	r.name = name
+	return nil
 }
