@@ -11,4 +11,5 @@ func Flatten(in interface{}) []interface{} {
 		output = append(output, e)
 	}
 	return output
+
 }
