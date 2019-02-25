@@ -5,17 +5,26 @@ import (
 	"sync"
 )
 
+// counter is subtype.
+
+// It has a embedded type of sync.Mutex that protect the n and nops
 type counter struct {
 	sync.Mutex
 	n    int64
 	nops int
 }
 
+// readCounter implements ReadCounter
+
+// Embedded struct type of counter
 type readCounter struct {
 	r io.Reader
 	counter
 }
 
+// writeCounter implements WriteCounter
+
+// Embedded struct type of counter
 type writeCounter struct {
 	w io.Writer
 	counter
@@ -56,6 +65,8 @@ func (wc *writeCounter) Write(p []byte) (int, error) {
 }
 
 func (wc *writeCounter) WriteCount() (int64, int) {
+	// count() is a method in counter struct
+	// we can call like this because of type promotion
 	return wc.count()
 }
 
